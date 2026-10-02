@@ -83,13 +83,13 @@ export const sentences = [
   },
   {
     "start": 26.42,
-    "end": 27.24,
+    "end": 27.44,
     "en": "It is big.",
     "id": 10,
     "zh": "它很大。"
   },
   {
-    "start": 27.24,
+    "start": 28.0,
     "end": 29.22,
     "en": "Very, very big.",
     "id": 11,
@@ -272,13 +272,13 @@ export const sentences = [
   },
   {
     "start": 92.58,
-    "end": 94.9,
+    "end": 95.1,
     "en": "The squid can see it with its big eyes.",
     "id": 37,
     "zh": "鱿鱼用它的大眼睛就能看见鲸。"
   },
   {
-    "start": 94.9,
+    "start": 96.1,
     "end": 97.02,
     "en": "Who will win?",
     "id": 38,
