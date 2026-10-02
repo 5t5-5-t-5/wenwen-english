@@ -6,3 +6,7 @@
 .lesson-card>.card-star{left:143px;right:auto;top:16px}@media(min-width:851px){.video-column{max-height:100%;overflow-y:auto;scrollbar-width:thin}}@media(max-width:850px){.lesson-card>.card-star{left:123px}}@media(max-width:450px){.lesson-card>.card-star{left:99px;top:14px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 .media-error{position:absolute;inset:0;background:#0a213beb;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;line-height:1.6;font-size:14px;z-index:2;text-align:center;padding:18px}.media-error span{font-size:12px;color:#cbdaee}.media-error .primary{box-shadow:none}.media-error strong{font-size:16px}#connection-status{position:fixed;top:calc(46px + env(safe-area-inset-top));left:12px;right:12px;margin:auto;max-width:580px;z-index:40;padding:10px 14px;border:1px solid #ebd4a2;border-radius:11px;background:#fff8e8;color:#866522;font-size:12px;line-height:1.6;box-shadow:0 4px 16px #0001}@media(display-mode:standalone){.site-header{padding-top:env(safe-area-inset-top);height:calc(61px + env(safe-area-inset-top))}.lesson-header{padding-top:env(safe-area-inset-top);height:calc(38px + env(safe-area-inset-top));flex-basis:calc(38px + env(safe-area-inset-top))}}
+
+/* Keep the opening frame title visible inside the homepage thumbnail. */
+.cover img{object-fit:contain}
+.course-duration{font-size:11px;color:#7c8593;margin-left:8px}

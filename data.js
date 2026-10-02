@@ -8,6 +8,7 @@ export const lesson = {
   "duration": 178.87,
   "mediaVersion": "v8",
   "video": assetURL('assets/deep-sea-v8-mobile.mp4'),
+  "cover": assetURL('assets/cover-sperm-whale-v8.jpg'),
   "poster": assetURL('assets/poster-v8.jpg')
 };
 export const sentences = [
