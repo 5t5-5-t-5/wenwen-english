@@ -1,6 +1,6 @@
 // Cache the learning interface, not the large video or the user's recordings.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const CACHE=PREFIX+'20261002-courses-v3';
+const CACHE=PREFIX+'20261002-responsive-v3.1';
 const SHELL=['./index.html','./style.css','./app.js','./core.js','./paths.js','./data.js','./ancient-data.js','./courses.js','./assets/cover-ancient-ocean-v4.jpg','./assets/ancient-ocean-en-v4.vtt','./assets/ancient-ocean-zh-v4.vtt','./favicon.svg','./manifest.webmanifest','./assets/poster-v8.jpg','./assets/cover-sperm-whale-v8.jpg','./assets/en-v8.vtt','./assets/zh-v8.vtt','./assets/icon-180.png','./assets/icon-192.png','./assets/icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
