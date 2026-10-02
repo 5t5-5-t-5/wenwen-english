@@ -1,6 +1,7 @@
 import {appBase,assetURL,routeURL,currentRoute} from './paths.js';
-import {lesson,sentences,vocabulary} from './data.js';
-import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState} from './core.js';
+import {courses,courseById} from './courses.js';
+let {lesson,sentences,vocabulary}=courses[0];
+import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState,storageKey} from './core.js';
 
 const paths={
  back:'M19 12H5m7-7-7 7 7 7', next:'M5 12h14m-7-7 7 7-7 7', play:'m8 5 11 7-11 7V5Z', pause:'M8 5v14M16 5v14',
@@ -19,29 +20,39 @@ const paths={
 };
 const icon=(name)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]||paths.info}"/></svg>`;
 const app=document.querySelector('#app'), modal=document.querySelector('#modal'), modalContent=document.querySelector('#modal-content');
-let state=readState(localStorage), video, current=0, catalogFilter='视频总页',levelFilter='全难度',category='地道英语',reviewTab='words';
+const states=Object.fromEntries(courses.map(course=>[course.lesson.id,readState(localStorage,course)]));
+let state=states[lesson.id], video, videoEvents, current=0, catalogFilter='视频总页',levelFilter='全难度',category='地道英语',reviewTab='words';
 let follow=false, awaiting=false, loop=false, hidden=false, abA=null, abB=null, popup=null, lastSaved=0, pendingSeek=null, toastTimer, currentWord=null, currentContext=0;
 let recorder=null, mediaStream=null, recordTimer=null, recordSeconds=0, recordURL=null, recordingGeneration=0;
 const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function save(){try{localStorage.setItem('wenwen-english-v1',JSON.stringify(state));}catch{toast('浏览器存储空间不足，本次进度暂时无法保存');}}
+function save(target=state,id=lesson.id){try{localStorage.setItem(storageKey(id),JSON.stringify(target));}catch{toast('浏览器存储空间不足，本次进度暂时无法保存');}}
 function toast(text){const el=document.querySelector('#toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800);}
 function header(){return `<header class="site-header"><a href="${routeURL('/')}" data-nav="/" class="brand">问问 English</a><span class="profile">${icon('user')} 我的学习空间</span></header>`;}
-function navigate(path){if(video){persist();video.pause();}closeModal();history.pushState({},'',routeURL(path));render();}
+function releaseVideo(){if(video){persist();videoEvents?.abort();video.pause();video=null;}}
+const isReview=()=>currentRoute().startsWith('/review');
+function navigate(path){releaseVideo();closeModal();history.pushState({},'',routeURL(path));render();}
 function render(){
-  video=null;popup=null;awaiting=false;abA=null;abB=null;follow=false;loop=false;hidden=false;
+  const route=currentRoute();
+  const chosen=courseById(route.split('/')[2]||(route==='/review'?'deep-sea':lesson.id));
+  if(chosen){({lesson,sentences,vocabulary}=chosen);state=states[lesson.id];}
+  lastSaved=0;video=null;popup=null;awaiting=false;abA=null;abB=null;follow=false;loop=false;hidden=false;
   document.body.className=currentRoute().startsWith('/lesson/')?'learning':'';
-  if(currentRoute().startsWith('/lesson/'))renderLesson();else if(currentRoute()==='/review')renderReview();else renderCatalog();
+  if(currentRoute().startsWith('/lesson/'))renderLesson();else if(isReview())renderReview();else renderCatalog();
 }
 function renderCatalog(){
-  const show=visibleLesson(catalogFilter,levelFilter,category,state);
+  const shown=courses.filter(c=>visibleLesson(catalogFilter,levelFilter,category,states[c.lesson.id],c.lesson.level));
   app.innerHTML=header()+`<main class="catalog"><nav class="tabs" aria-label="课程状态">${['视频总页','收藏视频','已看过','已学完'].map(t=>`<button class="pill ${catalogFilter===t?'selected':''}" data-filter="${t}" aria-pressed="${catalogFilter===t}">${t}</button>`).join('')}</nav>
   <nav class="tabs levels" aria-label="课程难度">${['全难度','A1','A2','B1','B2','C1','C2'].map(t=>`<button class="pill ${levelFilter===t?'selected':''}" data-level="${t}" aria-pressed="${levelFilter===t}">${t}</button>`).join('')}</nav>
-  <button class="review-link" data-nav="/review">${icon('star')} 进入复习中心（生词本与金句）</button>
+  <button class="review-link" data-nav="/review/${lesson.id}">${icon('star')} 进入复习中心（生词本与金句）</button>
   <nav class="categories" aria-label="课程分类">${['地道英语','越听越清晰'].map(t=>`<button class="category ${category===t?'selected':''}" data-category="${t}">${t}</button>`).join('')}<button class="category" data-action="install">添加到主屏幕</button></nav>
-  <section class="lesson-grid" aria-label="视频课程">${show?`<article class="lesson-card"><a class="cover" href="${routeURL('/lesson/deep-sea')}" data-nav="/lesson/deep-sea"><img src="${lesson.cover}" alt="深海怪兽英语课程封面">${state.watched?`<span class="watched">${state.completed?'已学完':'已学习'}</span>`:''}</a><button class="favorite card-star ${state.favorite?'is-saved':''}" data-action="favorite" aria-label="${state.favorite?'取消收藏视频':'收藏视频'}" aria-pressed="${state.favorite}">${icon('star')}</button><a class="card-copy" href="${routeURL('/lesson/deep-sea')}" data-nav="/lesson/deep-sea"><h2>${lesson.title}</h2><p>${lesson.description}</p><span class="level-tag">A1</span><span class="course-duration">${formatTime(Math.ceil(lesson.duration))}</span></a></article>`:empty(catalogFilter==='收藏视频'?'还没有收藏的视频':catalogFilter==='已看过'?'还没有学习记录':catalogFilter==='已学完'?'还没有学完的课程':'暂时没有这一分类的课程',catalogFilter==='收藏视频'?'点击视频封面上的星星，就能在这里找到它。':'可以返回视频总页，开始学习《深海怪兽》。',true)}</section>
+  <section class="lesson-grid" aria-label="视频课程">${shown.length?shown.map(courseCard).join(''):empty(catalogFilter==='收藏视频'?'还没有收藏的视频':catalogFilter==='已看过'?'还没有学习记录':catalogFilter==='已学完'?'还没有学完的课程':'暂时没有这一分类的课程',catalogFilter==='收藏视频'?'点击视频封面上的星星，就能在这里找到它。':'可以返回视频总页，选择一节课开始学习。',true)}</section>
   <p class="catalog-note">问问 English · 把每一句听懂，把每一次进步记住。<br>学习进度与收藏保存在当前浏览器。</p></main>`;
 }
-function empty(title,description,reset=false){return `<div class="empty"><div class="empty-icon">${reviewTab==='quotes'&&currentRoute()==='/review'?'✦':'📖'}</div><h3>${title}</h3><p>${description}</p>${reset?'<button class="primary" data-action="reset-filters">查看全部视频</button>':''}</div>`;}
+function courseCard(course){
+  const l=course.lesson,st=states[l.id],path=`/lesson/${l.id}`;
+  return `<article class="lesson-card"><a class="cover" href="${routeURL(path)}" data-nav="${path}"><img src="${l.cover||l.poster}" alt="${esc(l.title)}课程封面">${st.watched?`<span class="watched">${st.completed?'已学完':'已学习'}</span>`:''}</a><button class="favorite card-star ${st.favorite?'is-saved':''}" data-action="favorite" data-lesson="${l.id}" aria-label="${st.favorite?'取消收藏':'收藏'}${esc(l.title)}" aria-pressed="${st.favorite}">${icon('star')}</button><a class="card-copy" href="${routeURL(path)}" data-nav="${path}"><h2>${esc(l.title)}</h2><p>${esc(l.description)}</p><span class="level-tag">${l.level}</span><span class="course-duration">${formatTime(Math.ceil(l.duration))}</span></a></article>`;
+}
+function empty(title,description,reset=false){return `<div class="empty"><div class="empty-icon">${reviewTab==='quotes'&&isReview()?'✦':'📖'}</div><h3>${title}</h3><p>${description}</p>${reset?'<button class="primary" data-action="reset-filters">查看全部视频</button>':''}</div>`;}
 function sentenceHTML(s){
   const text=s.en.split(/([A-Za-z]+(?:'[A-Za-z]+)?)/g).map(part=>{
     if(!/[A-Za-z]/.test(part))return esc(part);
@@ -52,22 +63,24 @@ function sentenceHTML(s){
 }
 function renderLesson(){
   current=sentenceAt(sentences,pendingSeek??state.progress);
-  app.innerHTML=`<main class="lesson-shell"><header class="lesson-header"><button class="icon-button" data-nav="/" aria-label="返回视频目录">${icon('back')}</button><a class="brand" href="${routeURL('/')}" data-nav="/">问问 English</a><a class="icon-button download" href="${lesson.video}" download="问问English-深海怪兽-无底部字幕.mp4" aria-label="下载无底部字幕视频">${icon('download')}</a></header>
-  <div class="lesson-layout"><section class="video-column" aria-label="视频播放"><div class="video-box"><video id="video" src="${lesson.video}" poster="${lesson.poster}" controls playsinline preload="metadata" aria-label="深海怪兽英语教学视频"><track kind="subtitles" src="${assetURL('assets/en-v8.vtt')}" srclang="en" label="English"><track kind="subtitles" src="${assetURL('assets/zh-v8.vtt')}" srclang="zh" label="中文"></video><button class="big-play" data-action="play" aria-label="播放视频">${icon('play')}</button><div id="media-error" class="media-error" hidden><strong>视频暂时没有加载成功</strong><span>检查网络连接后可以继续学习。</span><button class="primary" data-action="retry-video">重新加载视频</button></div><span class="video-corner">Deep-Sea Monsters! · 深海怪兽</span></div><div class="video-details"><div class="eyebrow">问问 ENGLISH · A1 入门</div><h1>深海怪兽：和鲸鱼一起探索海底</h1><p>${lesson.description}</p><div class="detail-chips"><span>${formatTime(Math.ceil(lesson.duration))}</span><span>${sentences.length} 句双语字幕</span><span>海洋 · 动物 · 自然</span></div><div class="learning-tip">${icon('info')}<span>点击字幕可跳转到对应片段；点击英文单词查看释义。<br>按空格播放 / 暂停，按 ← → 切换上一句、下一句。</span></div></div></section>
+  app.innerHTML=`<main class="lesson-shell"><header class="lesson-header"><button class="icon-button" data-nav="/" aria-label="返回视频目录">${icon('back')}</button><a class="brand" href="${routeURL('/')}" data-nav="/">问问 English</a><a class="icon-button download" href="${lesson.video}" download="问问English-${lesson.id}.mp4" aria-label="下载无底部字幕视频">${icon('download')}</a></header>
+  <div class="lesson-layout"><section class="video-column" aria-label="视频播放"><div class="video-box"><video id="video" src="${lesson.video}" poster="${lesson.poster}" controls playsinline preload="metadata" aria-label="${esc(lesson.title)}英语教学视频"><track kind="subtitles" src="${lesson.tracks.en}" srclang="en" label="English"><track kind="subtitles" src="${lesson.tracks.zh}" srclang="zh" label="中文"></video><button class="big-play" data-action="play" aria-label="播放视频">${icon('play')}</button><div id="media-error" class="media-error" hidden><strong>视频暂时没有加载成功</strong><span>检查网络连接后可以继续学习。</span><button class="primary" data-action="retry-video">重新加载视频</button></div><span class="video-corner">${esc(lesson.englishTitle)}</span></div><div class="video-details"><div class="eyebrow">问问 ENGLISH · ${lesson.level} 入门</div><h1>${esc(lesson.title)}</h1><p>${lesson.description}</p><div class="detail-chips"><span>${formatTime(Math.ceil(lesson.duration))}</span><span>${sentences.length} 句双语字幕</span><span>${lesson.tags}</span></div><div class="learning-tip">${icon('info')}<span>点击字幕可跳转到对应片段；点击英文单词查看释义。<br>按空格播放 / 暂停，按 ← → 切换上一句、下一句。</span></div></div></section>
   <section class="reading-column" aria-label="逐句双语字幕"><div class="reading-heading"><strong>逐句精听</strong><span id="sentence-count">${current+1} / ${sentences.length}</span></div><div id="follow-banner" class="follow-banner" hidden><span>轮到你了，试着读出这一句</span><button data-action="record-dialog">${icon('mic')}录音</button><button data-action="next">下一句 ${icon('next')}</button></div><div id="sentences" class="sentences subtitle-${state.subtitle} ${state.phonetic?'phonetics':''}">${sentences.map(sentenceHTML).join('')}<div class="lesson-complete">每学会一句，就离自信表达更近一步。<button class="primary" data-action="complete">${state.completed?'✓ 已学完这节课':'标记为已学完'}</button></div></div></section></div>
   <footer class="toolbar"><div class="tool-row"><button class="tool" data-action="directory"><span class="tool-icon">${icon('grid')}</span><span>目录</span></button><button class="tool ${state.phonetic?'active':''}" id="phonetic-tool" data-action="phonetic" aria-pressed="${state.phonetic}"><span class="tool-icon">æ</span><span>音标</span></button><button class="tool" id="ab-tool" data-action="ab"><span class="tool-icon">A</span><span>AB点</span></button><button class="tool active" id="subtitle-tool" data-action="subtitle"><span class="tool-icon">${icon('language')}</span><span>${subtitleLabel()}</span></button><button class="tool active" id="speed-tool" data-action="speed"><span class="tool-icon">${icon('gauge')}</span><span>${state.speed}x</span></button><button class="tool" id="follow-tool" data-action="follow" aria-pressed="false"><span class="tool-icon">${icon('mic')}</span><span>跟读</span></button></div>
   <div class="seek-wrap"><input id="seek" class="seek" type="range" min="0" max="${lesson.duration}" step="0.05" value="0" aria-label="视频播放进度"><span id="marker-a" class="ab-marker" hidden>A</span><span id="marker-b" class="ab-marker" hidden>B</span></div>
   <div class="transport"><button class="transport-side" data-action="mode" aria-label="播放模式">${icon('menu')}</button><span class="progress-label" id="progress-label">00:00 / ${formatTime(Math.ceil(lesson.duration))}</span><div class="transport-center"><button class="skip" data-action="previous" aria-label="上一句">${icon('back')}</button><button class="play" id="play-button" data-action="play" aria-label="播放">${icon('play')}</button><button class="skip" data-action="next" aria-label="下一句">${icon('next')}</button></div><span id="follow-label" class="follow-label"></span><button class="transport-side" id="eye-button" data-action="hide" aria-label="隐藏字幕，练习盲听" aria-pressed="false">${icon('eye')}</button></div></footer></main>`;
   video=document.querySelector('#video');video.playbackRate=state.speed;
+  videoEvents=new AbortController();
+  const on=(type,handler)=>video.addEventListener(type,handler,{signal:videoEvents.signal});
   const resume=pendingSeek??state.progress;pendingSeek=null;video.dataset.resume=String(resume);
-  video.addEventListener('loadedmetadata',()=>{const resume=Number(video.dataset.resume||0);delete video.dataset.resume;if(resume>0&&resume<video.duration-.5)video.currentTime=resume;document.querySelector('#seek').max=video.duration;updateTime();scrollActive();});
-  video.addEventListener('play',()=>{state.watched=true;awaiting=false;setFollowBanner(false);updatePlay();save();});
-  video.addEventListener('pause',()=>{updatePlay();persist();});
-  video.addEventListener('ended',()=>{state.completed=true;state.progress=0;save();updatePlay();toast('这节课学完啦，去复习中心回顾收藏吧');});
-  video.addEventListener('timeupdate',onTimeUpdate);
-  video.addEventListener('error',()=>{document.querySelector('#media-error').hidden=false;toast(navigator.onLine?'视频暂时无法加载，点击重试。':'网络已断开，联网后点击重试。');});
-  video.addEventListener('canplay',()=>{document.querySelector('#media-error').hidden=true;});
-  video.addEventListener('ratechange',()=>{state.speed=video.playbackRate;setToolLabel('speed-tool',`${state.speed}x`);save();});
+  on('loadedmetadata',()=>{const resume=Number(video.dataset.resume||0);delete video.dataset.resume;if(resume>0&&resume<video.duration-.5)video.currentTime=resume;document.querySelector('#seek').max=video.duration;updateTime();scrollActive();});
+  on('play',()=>{state.watched=true;awaiting=false;setFollowBanner(false);updatePlay();save();});
+  on('pause',()=>{updatePlay();persist();});
+  on('ended',()=>{state.completed=true;state.progress=0;save();updatePlay();toast('这节课学完啦，去复习中心回顾收藏吧');});
+  on('timeupdate',onTimeUpdate);
+  on('error',()=>{document.querySelector('#media-error').hidden=false;toast(navigator.onLine?'视频暂时无法加载，点击重试。':'网络已断开，联网后点击重试。');});
+  on('canplay',()=>{document.querySelector('#media-error').hidden=true;});
+  on('ratechange',()=>{state.speed=video.playbackRate;setToolLabel('speed-tool',`${state.speed}x`);save();});
   document.querySelector('#seek').addEventListener('input',e=>{video.currentTime=Number(e.target.value);awaiting=false;setFollowBanner(false);updateTime();});
 }
 const subtitleLabel=()=>({dual:'双语',en:'英文',zh:'中文'}[state.subtitle]);
@@ -130,12 +143,12 @@ function speak(text){
 function renderReview(){
   const words=state.words.filter(k=>vocabulary[k]),quotes=state.quotes.filter(k=>sentences[k]);
   const items=reviewTab==='words'?words:quotes;
-  app.innerHTML=header()+`<main class="review"><button class="back-link" data-nav="/">${icon('back')}返回目录</button><h1>我的复习中心</h1><p class="review-subtitle">日积月累，水滴石穿</p><nav class="review-tabs" aria-label="复习分类"><button class="review-tab ${reviewTab==='words'?'selected':''}" data-review="words">${icon('book')}生词本 (${words.length})</button><button class="review-tab ${reviewTab==='quotes'?'selected':''}" data-review="quotes">${icon('quote')}金句库 (${quotes.length})</button></nav>${items.length?'<div class="review-tools"><button data-action="export">'+icon('download')+'导出学习笔记</button></div>':''}<section class="review-items">${items.length?items.map(id=>reviewTab==='words'?wordReview(id):quoteReview(id)).join(''):empty(reviewTab==='words'?'生词本空空如也':'金句库空空如也',reviewTab==='words'?'在看视频时点击单词，加入生词本即可收藏哦':'点击字幕卡片右上角的星星，留住喜欢的句子。')}</section></main>`;
+  app.innerHTML=header()+`<main class="review"><button class="back-link" data-nav="/">${icon('back')}返回目录</button><h1>我的复习中心</h1><p class="review-subtitle">${esc(lesson.title)}</p><nav class="review-courses" aria-label="选择复习课程">${courses.map(c=>`<button class="pill ${c.lesson.id===lesson.id?'selected':''}" data-nav="/review/${c.lesson.id}" aria-pressed="${c.lesson.id===lesson.id}">${esc(c.lesson.title)}</button>`).join('')}</nav><nav class="review-tabs" aria-label="复习分类"><button class="review-tab ${reviewTab==='words'?'selected':''}" data-review="words">${icon('book')}生词本 (${words.length})</button><button class="review-tab ${reviewTab==='quotes'?'selected':''}" data-review="quotes">${icon('quote')}金句库 (${quotes.length})</button></nav>${items.length?'<div class="review-tools"><button data-action="export">'+icon('download')+'导出学习笔记</button></div>':''}<section class="review-items">${items.length?items.map(id=>reviewTab==='words'?wordReview(id):quoteReview(id)).join(''):empty(reviewTab==='words'?'生词本空空如也':'金句库空空如也',reviewTab==='words'?'在看视频时点击单词，加入生词本即可收藏哦':'点击字幕卡片右上角的星星，留住喜欢的句子。')}</section></main>`;
 }
 function wordReview(key){const v=vocabulary[key];const idx=sentences.findIndex(s=>s.en.toLowerCase().includes(key));return `<article class="review-item"><button class="save-quote is-saved" data-remove-word="${key}" aria-label="取消收藏单词 ${key}">${icon('star')}</button><h3>${v.word}</h3><span class="ipa">/${v.ipa}/</span><p>${v.meaning}</p><div class="example">${v.example}<span>${v.translation}</span></div><div class="review-actions"><button class="secondary" data-speak="${key}">${icon('speaker')} 听发音</button><button class="secondary" data-jump="${Math.max(0,idx)}">回到视频</button></div></article>`;}
 function quoteReview(id){const s=sentences[id];return `<article class="review-item"><button class="save-quote is-saved" data-quote="${id}" aria-label="取消收藏第 ${id+1} 句">${icon('star')}</button><span class="time-badge">${formatTime(s.start)}</span><p style="font-weight:650;color:#334155;font-size:16px;padding-right:15px">${s.en}</p><p>${s.zh}</p><div class="review-actions"><button class="secondary" data-jump="${id}">${icon('play')}听原句</button></div></article>`;}
 function directory(){
-  modalFrame('视频目录',`<button class="directory-item" data-jump="0"><img src="${lesson.poster}" alt="深海怪兽"><p>${lesson.title}<small>A1 · ${formatTime(Math.ceil(lesson.duration))} · ${sentences.length} 句</small></p></button><div class="chapter-list">${[[0,'一起潜入深海'],[8,'认识抹香鲸'],[19,'大王乌贼的秘密'],[27,'会变色的洪堡鱿鱼'],[35,'深海里的追逐'],[41,'轮到你说单词'],[57,'和海洋朋友说再见']].map(([id,t])=>`<button data-jump="${id}"><span>${t}</span><time>${formatTime(sentences[id].start)}</time></button>`).join('')}</div><div class="modal-actions"><button class="secondary" data-nav="/">所有视频</button><button class="primary" data-nav="/review">复习中心</button></div>`);
+  modalFrame('视频目录',`<button class="directory-item" data-jump="0"><img src="${lesson.poster}" alt="${esc(lesson.title)}"><p>${lesson.title}<small>${lesson.level} · ${formatTime(Math.ceil(lesson.duration))} · ${sentences.length} 句</small></p></button><div class="chapter-list">${lesson.chapters.map(([id,t])=>`<button data-jump="${id}"><span>${t}</span><time>${formatTime(sentences[id].start)}</time></button>`).join('')}</div><div class="modal-actions"><button class="secondary" data-nav="/">所有视频</button><button class="primary" data-nav="/review/${lesson.id}">复习中心</button></div>`);
 }
 function recordDialog(){
   video?.pause();closeModal();const s=sentences[current];
@@ -162,7 +175,7 @@ async function startRecording(){
   }catch{mediaStream?.getTracks().forEach(t=>t.stop());if(modal.open&&generation===recordingGeneration){button.disabled=false;button.innerHTML='<span class="record-dot"></span>重新尝试';toast('未能使用麦克风，请在浏览器中允许麦克风权限后重试');}}
 }
 function stopRecording(discard=false){if(discard)recordingGeneration++;clearInterval(recordTimer);if(recorder?.state==='recording')recorder.stop();mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;if(discard&&recordURL){URL.revokeObjectURL(recordURL);recordURL=null;}}
-function exportNotes(){const text=['问问 English · 我的学习笔记','深海怪兽 Deep-Sea Monsters!','','生词本',...state.words.filter(k=>vocabulary[k]).map(k=>{const v=vocabulary[k];return `${v.word} /${v.ipa}/\n${v.meaning}\n${v.example}\n${v.translation}\n`;}),'金句库',...state.quotes.filter(i=>sentences[i]).map(i=>`${formatTime(sentences[i].start)} ${sentences[i].en}\n${sentences[i].zh}\n`) ].join('\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='问问English-学习笔记.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function exportNotes(){const text=['问问 English · 我的学习笔记',lesson.title+' · '+lesson.englishTitle,'','生词本',...state.words.filter(k=>vocabulary[k]).map(k=>{const v=vocabulary[k];return `${v.word} /${v.ipa}/\n${v.meaning}\n${v.example}\n${v.translation}\n`;}),'金句库',...state.quotes.filter(i=>sentences[i]).map(i=>`${formatTime(sentences[i].start)} ${sentences[i].en}\n${sentences[i].zh}\n`) ].join('\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='问问English-学习笔记.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
 document.addEventListener('click',event=>{
   const el=event.target.closest('button,a,[data-sentence]');
@@ -176,8 +189,8 @@ document.addEventListener('click',event=>{
   if(el.dataset.word){showWord(el.dataset.word,Number(el.dataset.context));return;}
   if(el.dataset.speak){speak(el.dataset.speak);return;}
   if(el.dataset.removeWord){state.words=state.words.filter(k=>k!==el.dataset.removeWord);save();renderReview();return;}
-  if(el.dataset.quote!==undefined){const id=Number(el.dataset.quote),has=state.quotes.includes(id);state.quotes=has?state.quotes.filter(x=>x!==id):[...state.quotes,id];save();if(currentRoute()==='/review')renderReview();else{el.classList.toggle('is-saved',!has);el.setAttribute('aria-pressed',String(!has));el.setAttribute('aria-label',`${has?'收藏':'取消收藏'}第 ${id+1} 句`);}toast(has?'已取消收藏金句':'已加入金句库');return;}
-  if(el.dataset.jump!==undefined){const idx=Number(el.dataset.jump);closeModal();if(video)seekSentence(idx);else{pendingSeek=sentences[idx].start;navigate('/lesson/deep-sea');}return;}
+  if(el.dataset.quote!==undefined){const id=Number(el.dataset.quote),has=state.quotes.includes(id);state.quotes=has?state.quotes.filter(x=>x!==id):[...state.quotes,id];save();if(isReview())renderReview();else{el.classList.toggle('is-saved',!has);el.setAttribute('aria-pressed',String(!has));el.setAttribute('aria-label',`${has?'收藏':'取消收藏'}第 ${id+1} 句`);}toast(has?'已取消收藏金句':'已加入金句库');return;}
+  if(el.dataset.jump!==undefined){const idx=Number(el.dataset.jump);closeModal();if(video)seekSentence(idx);else{pendingSeek=sentences[idx].start;navigate(`/lesson/${lesson.id}`);}return;}
   if(el.dataset.sentence!==undefined){if(!hidden)seekSentence(Number(el.dataset.sentence));return;}
   if(el.dataset.speed){state.speed=Number(el.dataset.speed);video.playbackRate=state.speed;save();closePopup();return;}
   if(el.dataset.subtitle){state.subtitle=el.dataset.subtitle;const list=document.querySelector('#sentences');list.classList.remove('subtitle-dual','subtitle-en','subtitle-zh');list.classList.add(`subtitle-${state.subtitle}`);setToolLabel('subtitle-tool',subtitleLabel());save();closePopup();return;}
@@ -185,7 +198,7 @@ document.addEventListener('click',event=>{
   const action=el.dataset.action;
   if(!action)return;
   switch(action){
-    case 'favorite':state.favorite=!state.favorite;save();renderCatalog();break;
+    case 'favorite':{const id=el.dataset.lesson;states[id].favorite=!states[id].favorite;save(states[id],id);renderCatalog();break;}
     case 'reset-filters':catalogFilter='视频总页';levelFilter='全难度';category='地道英语';renderCatalog();break;
     case 'retry-video':video.dataset.resume=String(video.currentTime||state.progress||0);document.querySelector('#media-error').hidden=true;video.load();break;
     case 'play':if(video.paused){if(awaiting)seekSentence(current);else play();}else video.pause();break;
@@ -223,7 +236,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'){e.preventDefault();seekSentence(current-1);}
   if(e.key==='ArrowRight'){e.preventDefault();seekSentence(current+1);}
 });
-window.addEventListener('popstate',()=>{if(video){persist();video.pause();}closeModal();render();});
+window.addEventListener('popstate',()=>{releaseVideo();closeModal();render();});
 window.addEventListener('pagehide',()=>{persist();stopRecording(true);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)persist();});
 render();

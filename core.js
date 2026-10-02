@@ -5,18 +5,23 @@ export function sentenceAt(sentences,time){
   for(let i=0;i<sentences.length;i++){if(sentences[i].start<=time+0.03)index=i;else break;}
   return index;
 }
-export function visibleLesson(filter,level,category,state){
-  return (level==='全难度'||level==='A1') && category==='地道英语' && (filter==='视频总页'||(filter==='收藏视频'&&state.favorite)||(filter==='已看过'&&state.watched)||(filter==='已学完'&&state.completed));
+export function visibleLesson(filter,level,category,state,lessonLevel='A1'){
+  return (level==='全难度'||level===lessonLevel) && category==='地道英语' && (filter==='视频总页'||(filter==='收藏视频'&&state.favorite)||(filter==='已看过'&&state.watched)||(filter==='已学完'&&state.completed));
 }
 export const normalizedWord = word => word.toLowerCase().replace(/[^a-z'-]/g,'');
-export function readState(storage){
+export const storageKey = id => id==='deep-sea'?'wenwen-english-v1':`wenwen-english:${id}:v1`;
+export function readState(storage,course={lesson,sentences}){
+  const {lesson:activeLesson,sentences:activeSentences}=course;
+  return readCourseState(storage,activeLesson,activeSentences);
+}
+function readCourseState(storage,lesson,sentences){
   const empty={favorite:false,watched:false,completed:false,progress:0,words:[],quotes:[],speed:1,subtitle:'dual',phonetic:false,mediaVersion:lesson.mediaVersion};
   try{
-    const data=JSON.parse(storage.getItem('wenwen-english-v1'));
+    const data=JSON.parse(storage.getItem(storageKey(lesson.id)));
     if(!data||typeof data!=='object')return empty;
     const saved={...empty,...data,progress:Number.isFinite(data.progress)?Math.max(0,Math.min(data.progress,lesson.duration)):0,words:Array.isArray(data.words)?data.words.filter(x=>typeof x==='string'):[],quotes:Array.isArray(data.quotes)?data.quotes.filter(Number.isInteger):[],speed:[.5,.75,.9,1,1.25,1.5,1.75,2].includes(data.speed)?data.speed:1,subtitle:['dual','en','zh'].includes(data.subtitle)?data.subtitle:'dual'};
     // V8 adds a recap sentence before Red; keep old bookmarks on the same words.
-    if(data.mediaVersion!==lesson.mediaVersion){
+    if(lesson.id==='deep-sea'&&data.mediaVersion!==lesson.mediaVersion){
       saved.quotes=saved.quotes.filter(i=>i>=0&&i<62).map(i=>i>=51?i+1:i);
       if(saved.progress>0){
         const oldIndex=sentenceAt(legacyStarts.map(start=>({start})),Math.min(saved.progress,172.97));
