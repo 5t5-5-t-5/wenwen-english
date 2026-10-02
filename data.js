@@ -5,443 +5,451 @@ export const lesson = {
   "englishTitle": "Deep-Sea Monsters!",
   "description": "探秘抹香鲸与大王乌贼，一句一句学会海洋动物英语",
   "level": "A1",
-  "duration": 172.97,
-  "video": assetURL('assets/deep-sea-mobile.mp4'),
-  "poster": assetURL('assets/poster.jpg')
+  "duration": 178.87,
+  "mediaVersion": "v8",
+  "video": assetURL('assets/deep-sea-v8-mobile.mp4'),
+  "poster": assetURL('assets/poster-v8.jpg')
 };
 export const sentences = [
   {
-    "start": 1.4200000000000004,
-    "end": 3.06,
+    "start": 3.34,
+    "end": 4.94,
     "en": "Hi, friends!",
     "id": 0,
     "zh": "嗨，朋友们！"
   },
   {
-    "start": 4.1,
-    "end": 5.84,
+    "start": 5.9,
+    "end": 7.74,
     "en": "Let's go deep into the sea.",
     "id": 1,
     "zh": "让我们潜入深深的大海。"
   },
   {
-    "start": 6.64,
-    "end": 8.14,
+    "start": 8.4,
+    "end": 10.04,
     "en": "Let's meet sea monsters.",
     "id": 2,
     "zh": "让我们认识一下海里的怪兽。"
   },
   {
-    "start": 9.34,
-    "end": 10.24,
+    "start": 11.06,
+    "end": 12.1,
     "en": "Are you ready?",
     "id": 3,
     "zh": "你们准备好了吗？"
   },
   {
-    "start": 10.84,
-    "end": 11.8,
+    "start": 12.64,
+    "end": 13.66,
     "en": "Here we go.",
     "id": 4,
     "zh": "我们出发吧！"
   },
   {
-    "start": 12.58,
-    "end": 14.66,
+    "start": 14.5,
+    "end": 16.5,
     "en": "Down, down, down.",
     "id": 5,
     "zh": "向下，向下，再向下。"
   },
   {
-    "start": 15.34,
-    "end": 17.44,
+    "start": 17.26,
+    "end": 19.32,
     "en": "Wow, it is dark here.",
     "id": 6,
     "zh": "哇，这里好黑呀。"
   },
   {
-    "start": 19.279999999999998,
-    "end": 20.06,
+    "start": 21.08,
+    "end": 21.96,
     "en": "Look!",
     "id": 7,
     "zh": "看！"
   },
   {
-    "start": 20.56,
-    "end": 21.7,
+    "start": 22.46,
+    "end": 23.58,
     "en": "This is a whale.",
     "id": 8,
     "zh": "这是一头鲸。"
   },
   {
-    "start": 22.34,
-    "end": 23.74,
+    "start": 24.3,
+    "end": 25.62,
     "en": "It is a sperm whale.",
     "id": 9,
     "zh": "这是一头抹香鲸。"
   },
   {
-    "start": 24.66,
-    "end": 25.56,
+    "start": 26.42,
+    "end": 27.24,
     "en": "It is big.",
     "id": 10,
     "zh": "它很大。"
   },
   {
-    "start": 26.06,
-    "end": 27.74,
+    "start": 27.24,
+    "end": 29.22,
     "en": "Very, very big.",
     "id": 11,
     "zh": "非常、非常大。"
   },
   {
-    "start": 28.52,
-    "end": 30.66,
+    "start": 30.14,
+    "end": 32.14,
     "en": "It is as long as a school bus.",
     "id": 12,
     "zh": "它和一辆校车一样长。"
   },
   {
-    "start": 31.6,
-    "end": 33.12,
+    "start": 33.06,
+    "end": 34.6,
     "en": "Look at its head.",
     "id": 13,
     "zh": "看看它的头。"
   },
   {
-    "start": 33.62,
-    "end": 35.06,
+    "start": 35.1,
+    "end": 36.52,
     "en": "Its head is so big.",
     "id": 14,
     "zh": "它的头可真大！"
   },
   {
-    "start": 35.82,
-    "end": 37.14,
+    "start": 37.38,
+    "end": 38.6,
     "en": "These are its teeth.",
     "id": 15,
     "zh": "这些是它的牙齿。"
   },
   {
-    "start": 37.74,
-    "end": 39.76,
+    "start": 39.24,
+    "end": 41.22,
     "en": "One tooth is as big as a banana.",
     "id": 16,
     "zh": "一颗牙齿就有一根香蕉那么大。"
   },
   {
-    "start": 40.62,
-    "end": 42.54,
+    "start": 42.46,
+    "end": 43.98,
     "en": "Now the whale dives.",
     "id": 17,
     "zh": "现在，这头鲸潜下去了。"
   },
   {
-    "start": 43.16,
-    "end": 45.22,
+    "start": 44.64,
+    "end": 46.64,
     "en": "Down, down, down.",
     "id": 18,
     "zh": "向下，向下，再向下。"
   },
   {
-    "start": 47.12,
-    "end": 48.48,
+    "start": 48.62,
+    "end": 49.94,
     "en": "Who is this?",
     "id": 19,
     "zh": "这是谁呢？"
   },
   {
-    "start": 49.22,
-    "end": 50.3,
+    "start": 50.7,
+    "end": 51.74,
     "en": "It is a squid.",
     "id": 20,
     "zh": "这是一只鱿鱼。"
   },
   {
-    "start": 50.88,
-    "end": 52.02,
+    "start": 52.34,
+    "end": 53.46,
     "en": "A giant squid.",
     "id": 21,
     "zh": "一只大王乌贼。"
   },
   {
-    "start": 52.88,
-    "end": 54.28,
+    "start": 54.26,
+    "end": 55.72,
     "en": "Look at its eyes.",
     "id": 22,
     "zh": "看看它的眼睛。"
   },
   {
-    "start": 54.88,
-    "end": 57.08,
+    "start": 56.36,
+    "end": 58.52,
     "en": "Its eyes are as big as dinner plates.",
     "id": 23,
     "zh": "它的眼睛和餐盘一样大。"
   },
   {
-    "start": 57.82,
-    "end": 59.86,
+    "start": 59.32,
+    "end": 61.3,
     "en": "Wow, what big eyes!",
     "id": 24,
     "zh": "哇，好大的眼睛！"
   },
   {
-    "start": 60.82,
-    "end": 62.5,
+    "start": 62.18,
+    "end": 63.9,
     "en": "These are its tentacles.",
     "id": 25,
     "zh": "这些是它的触手。"
   },
   {
-    "start": 63.02,
-    "end": 65.48,
+    "start": 64.56,
+    "end": 66.92,
     "en": "They are long, long, long.",
     "id": 26,
     "zh": "它们很长、很长、很长。"
   },
   {
-    "start": 67.42,
-    "end": 69.34,
+    "start": 68.9,
+    "end": 70.74,
     "en": "This is a Humboldt squid.",
     "id": 27,
     "zh": "这是一只洪堡鱿鱼。"
   },
   {
-    "start": 70.22,
-    "end": 71.42,
+    "start": 71.66,
+    "end": 72.82,
     "en": "It can turn red.",
     "id": 28,
     "zh": "它可以变成红色。"
   },
   {
-    "start": 72.14,
-    "end": 73.36,
+    "start": 73.6,
+    "end": 74.76,
     "en": "It can turn white.",
     "id": 29,
     "zh": "它可以变成白色。"
   },
   {
-    "start": 74.12,
-    "end": 76.58,
+    "start": 75.56,
+    "end": 77.94,
     "en": "Red, white, red, white.",
     "id": 30,
     "zh": "红色，白色，红色，白色。"
   },
   {
-    "start": 77.52,
-    "end": 78.46,
+    "start": 78.92,
+    "end": 79.86,
     "en": "It is fast.",
     "id": 31,
     "zh": "它的速度很快。"
   },
   {
-    "start": 79.24,
-    "end": 79.76,
+    "start": 80.68,
+    "end": 81.14,
     "en": "Zoom!",
     "id": 32,
     "zh": "嗖！"
   },
   {
-    "start": 80.8,
-    "end": 81.98,
+    "start": 82.18,
+    "end": 83.36,
     "en": "They swim together.",
     "id": 33,
     "zh": "它们一起游泳。"
   },
   {
-    "start": 82.82,
-    "end": 83.96,
+    "start": 84.2,
+    "end": 85.36,
     "en": "So many squid.",
     "id": 34,
     "zh": "好多鱿鱼呀！"
   },
   {
-    "start": 85.88,
-    "end": 87.66,
+    "start": 87.4,
+    "end": 89.04,
     "en": "The whale is hunting.",
     "id": 35,
     "zh": "这头鲸正在捕猎。"
   },
   {
-    "start": 88.54,
-    "end": 90.38,
+    "start": 89.96,
+    "end": 91.78,
     "en": "It wants to eat the giant squid.",
     "id": 36,
     "zh": "它想吃掉那只大王乌贼。"
   },
   {
-    "start": 91.18,
-    "end": 93.68,
+    "start": 92.58,
+    "end": 94.9,
     "en": "The squid can see it with its big eyes.",
     "id": 37,
     "zh": "鱿鱼用它的大眼睛就能看见鲸。"
   },
   {
-    "start": 94.64,
-    "end": 95.58,
+    "start": 94.9,
+    "end": 97.02,
     "en": "Who will win?",
     "id": 38,
     "zh": "谁会赢呢？"
   },
   {
-    "start": 96.24,
-    "end": 97.28,
+    "start": 97.64,
+    "end": 98.68,
     "en": "We don't know.",
     "id": 39,
     "zh": "我们不知道。"
   },
   {
-    "start": 97.94,
-    "end": 99.3,
+    "start": 99.26,
+    "end": 100.76,
     "en": "It is so dark.",
     "id": 40,
     "zh": "这里太黑了。"
   },
   {
-    "start": 101.48000000000002,
-    "end": 103.0,
+    "start": 102.84,
+    "end": 104.4,
     "en": "Let's say the words.",
     "id": 41,
     "zh": "让我们一起说出这些单词。"
   },
   {
-    "start": 103.98,
-    "end": 104.54,
+    "start": 104.92,
+    "end": 105.98,
     "en": "Deep.",
-    "id": 42,
-    "zh": "深的。"
+    "zh": "深的。",
+    "id": 42
   },
   {
-    "start": 106.9,
-    "end": 107.78,
+    "start": 108.1,
+    "end": 109.2,
     "en": "Dark.",
-    "id": 43,
-    "zh": "黑暗的。"
+    "zh": "黑暗的。",
+    "id": 43
   },
   {
-    "start": 110.30000000000001,
-    "end": 111.18,
-    "en": "Whale.",
-    "id": 44,
-    "zh": "鲸。"
+    "start": 111.38,
+    "end": 113.04,
+    "en": "Sperm whale.",
+    "zh": "抹香鲸。",
+    "id": 44
   },
   {
-    "start": 113.72,
-    "end": 114.32,
+    "start": 115.1,
+    "end": 116.24,
     "en": "Big.",
-    "id": 45,
-    "zh": "大的。"
+    "zh": "大的。",
+    "id": 45
   },
   {
-    "start": 116.72,
-    "end": 117.66,
+    "start": 118.28,
+    "end": 119.52,
     "en": "Teeth.",
-    "id": 46,
-    "zh": "牙齿（复数）。"
+    "zh": "牙齿（复数）。",
+    "id": 46
   },
   {
-    "start": 119.28,
-    "end": 120.88,
+    "start": 121.44,
+    "end": 122.72,
     "en": "Dive.",
-    "id": 47,
-    "zh": "潜水。"
+    "zh": "潜水。",
+    "id": 47
   },
   {
-    "start": 122.68,
-    "end": 124.04,
-    "en": "Squid.",
-    "id": 48,
-    "zh": "鱿鱼。"
+    "start": 124.68,
+    "end": 126.34,
+    "en": "Giant squid.",
+    "zh": "大王乌贼。",
+    "id": 48
   },
   {
-    "start": 126.46,
-    "end": 127.4,
+    "start": 128.42,
+    "end": 129.66,
     "en": "Eyes.",
-    "id": 49,
-    "zh": "眼睛（复数）。"
+    "zh": "眼睛（复数）。",
+    "id": 49
   },
   {
-    "start": 129.7,
-    "end": 131.1,
+    "start": 131.84,
+    "end": 133.34,
     "en": "Tentacles.",
-    "id": 50,
-    "zh": "触手（复数）。"
+    "zh": "触手（复数）。",
+    "id": 50
   },
   {
-    "start": 133.3,
-    "end": 134.5,
+    "start": 135.54,
+    "end": 137.26,
+    "en": "Humboldt squid.",
+    "zh": "洪堡鱿鱼。",
+    "id": 51
+  },
+  {
+    "start": 139.34,
+    "end": 140.54,
     "en": "Red.",
-    "id": 51,
-    "zh": "红色的。"
+    "zh": "红色的。",
+    "id": 52
   },
   {
-    "start": 136.64,
-    "end": 137.74,
+    "start": 142.64,
+    "end": 143.74,
     "en": "Fast.",
-    "id": 52,
-    "zh": "快的。"
+    "zh": "快的。",
+    "id": 53
   },
   {
-    "start": 140.38000000000002,
-    "end": 141.32,
+    "start": 146.02,
+    "end": 147.4,
     "en": "Swim.",
-    "id": 53,
-    "zh": "游泳。"
+    "zh": "游泳。",
+    "id": 54
   },
   {
-    "start": 143.72,
-    "end": 144.62,
+    "start": 149.42,
+    "end": 150.54,
     "en": "Hunt.",
-    "id": 54,
-    "zh": "捕猎。"
+    "zh": "捕猎。",
+    "id": 55
   },
   {
-    "start": 146.84,
-    "end": 148.18,
+    "start": 152.58,
+    "end": 154.1,
     "en": "Great job.",
-    "id": 55,
+    "id": 56,
     "zh": "做得真棒！"
   },
   {
-    "start": 149.88,
-    "end": 151.76,
+    "start": 155.64,
+    "end": 157.66,
     "en": "Bye bye, giant squid.",
-    "id": 56,
+    "id": 57,
     "zh": "再见啦，大王乌贼。"
   },
   {
-    "start": 152.48,
-    "end": 153.2,
+    "start": 158.42,
+    "end": 159.12,
     "en": "Oh no.",
-    "id": 57,
+    "id": 58,
     "zh": "哦，不好！"
   },
   {
-    "start": 153.78,
-    "end": 155.24,
+    "start": 159.78,
+    "end": 161.12,
     "en": "The squid squirts ink.",
-    "id": 58,
+    "id": 59,
     "zh": "鱿鱼喷出了墨汁。"
   },
   {
-    "start": 155.82,
-    "end": 157.06,
+    "start": 161.42,
+    "end": 162.94,
     "en": "I can't see.",
-    "id": 59,
+    "id": 60,
     "zh": "我看不见了。"
   },
   {
-    "start": 157.66,
-    "end": 158.34,
+    "start": 163.56,
+    "end": 164.24,
     "en": "Hehe!",
-    "id": 60,
+    "id": 61,
     "zh": "嘿嘿！"
   },
   {
-    "start": 158.84,
-    "end": 160.4,
+    "start": 164.7,
+    "end": 166.3,
     "en": "See you next time.",
-    "id": 61,
+    "id": 62,
     "zh": "下次见！"
   }
 ];
