@@ -6,7 +6,7 @@ export const lesson = {
   "description": "认识邓氏鱼的盔甲、颌骨和化石，一句一句探索远古海洋",
   "level": "A1",
   "duration": 174.07,
-  "mediaVersion": "v4",
+  "mediaVersion": "v5",
   "tags": "远古 · 海洋 · 动物",
   "chapters": [
     [
@@ -47,10 +47,10 @@ export const lesson = {
     ]
   ]
 ,
-  video:assetURL('assets/ancient-ocean-v4-mobile.mp4'),
-  cover:assetURL('assets/cover-ancient-ocean-v4.jpg'),
-  poster:assetURL('assets/cover-ancient-ocean-v4.jpg'),
-  tracks:{en:assetURL('assets/ancient-ocean-en-v4.vtt'),zh:assetURL('assets/ancient-ocean-zh-v4.vtt')}
+  video:assetURL('assets/ancient-ocean-v5-mobile.mp4'),
+  cover:assetURL('assets/cover-ancient-ocean-v5.jpg'),
+  poster:assetURL('assets/cover-ancient-ocean-v5.jpg'),
+  tracks:{en:assetURL('assets/ancient-ocean-en-v5.vtt'),zh:assetURL('assets/ancient-ocean-zh-v5.vtt')}
 };
 export const sentences = [
   {
