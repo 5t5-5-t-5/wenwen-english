@@ -1,1 +1,32 @@
-{"id":"./","name":"问问 English","short_name":"问问 English","lang":"zh-CN","start_url":"./","scope":"./","display":"standalone","background_color":"#f5f6f8","theme_color":"#527ee9","description":"看视频，一句一句学英语。","icons":[{"src":"./assets/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"./assets/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{
+  "id": "./",
+  "name": "问问看世界",
+  "short_name": "问问看世界",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#17324d",
+  "description": "从喜欢的主题出发，一句一句学英语。",
+  "icons": [
+    {
+      "src": "./assets/wenwen-world-icon-192-v1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/wenwen-world-icon-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/wenwen-world-maskable-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
