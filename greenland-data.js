@@ -6,7 +6,7 @@ export const lesson = {
   "description": "认识慢悠悠的格陵兰鲨，探索冰海、食物和长寿的秘密",
   "level": "A1",
   "duration": 180.03,
-  "mediaVersion": "v2",
+  "mediaVersion": "v3",
   "tags": "海洋 · 鲨鱼 · 自然",
   "chapters": [
     [
@@ -47,10 +47,10 @@ export const lesson = {
     ]
   ]
 ,
-  video:assetURL('assets/greenland-shark-v2-mobile.mp4'),
-  cover:assetURL('assets/cover-greenland-shark-v2.jpg'),
-  poster:assetURL('assets/cover-greenland-shark-v2.jpg'),
-  tracks:{en:assetURL('assets/greenland-shark-en-v2.vtt'),zh:assetURL('assets/greenland-shark-zh-v2.vtt')}
+  video:assetURL('assets/greenland-shark-v3-mobile.mp4'),
+  cover:assetURL('assets/cover-greenland-shark-v3.jpg'),
+  poster:assetURL('assets/cover-greenland-shark-v3.jpg'),
+  tracks:{en:assetURL('assets/greenland-shark-en-v3.vtt'),zh:assetURL('assets/greenland-shark-zh-v3.vtt')}
 };
 export const sentences = [
   {

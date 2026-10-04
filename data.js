@@ -6,10 +6,10 @@ export const lesson = {
   "description": "探秘抹香鲸与大王乌贼，一句一句学会海洋动物英语",
   "level": "A1",
   "duration": 178.87,
-  "mediaVersion": "v8",
-  "video": assetURL('assets/deep-sea-v8-mobile.mp4'),
-  "cover": assetURL('assets/cover-sperm-whale-v8.jpg'),
-  "poster": assetURL('assets/poster-v8.jpg')
+  "mediaVersion": "v9",
+  "video": assetURL('assets/deep-sea-v9-mobile.mp4'),
+  "cover": assetURL('assets/cover-deep-sea-v9.jpg'),
+  "poster": assetURL('assets/cover-deep-sea-v9.jpg')
 };
 export const sentences = [
   {

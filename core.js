@@ -21,7 +21,7 @@ function readCourseState(storage,lesson,sentences){
     if(!data||typeof data!=='object')return empty;
     const saved={...empty,...data,progress:Number.isFinite(data.progress)?Math.max(0,Math.min(data.progress,lesson.duration)):0,words:Array.isArray(data.words)?data.words.filter(x=>typeof x==='string'):[],quotes:Array.isArray(data.quotes)?data.quotes.filter(Number.isInteger):[],speed:[.5,.75,.9,1,1.25,1.5,1.75,2].includes(data.speed)?data.speed:1,subtitle:['dual','en','zh'].includes(data.subtitle)?data.subtitle:'dual'};
     // V8 adds a recap sentence before Red; keep old bookmarks on the same words.
-    if(lesson.id==='deep-sea'&&data.mediaVersion!==lesson.mediaVersion){
+    if(lesson.id==='deep-sea'&&(!data.mediaVersion||/^v[1-7]$/.test(data.mediaVersion))){
       saved.quotes=saved.quotes.filter(i=>i>=0&&i<62).map(i=>i>=51?i+1:i);
       if(saved.progress>0){
         const oldIndex=sentenceAt(legacyStarts.map(start=>({start})),Math.min(saved.progress,172.97));

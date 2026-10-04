@@ -6,7 +6,7 @@ export const lesson = {
   "description": "认识霸王龙的大牙齿、小手臂和化石，一句一句探索恐龙世界",
   "level": "A1",
   "duration": 187.67,
-  "mediaVersion": "v3",
+  "mediaVersion": "v4",
   "tags": "恐龙 · 动物 · 自然",
   "chapters": [
     [
@@ -51,10 +51,10 @@ export const lesson = {
     ]
   ]
 ,
-  video:assetURL('assets/t-rex-v3-mobile.mp4'),
-  cover:assetURL('assets/cover-t-rex-v3.jpg'),
-  poster:assetURL('assets/cover-t-rex-v3.jpg'),
-  tracks:{en:assetURL('assets/t-rex-en-v3.vtt'),zh:assetURL('assets/t-rex-zh-v3.vtt')}
+  video:assetURL('assets/t-rex-v4-mobile.mp4'),
+  cover:assetURL('assets/cover-t-rex-v4.jpg'),
+  poster:assetURL('assets/cover-t-rex-v4.jpg'),
+  tracks:{en:assetURL('assets/t-rex-en-v4.vtt'),zh:assetURL('assets/t-rex-zh-v4.vtt')}
 };
 export const sentences = [
   {
