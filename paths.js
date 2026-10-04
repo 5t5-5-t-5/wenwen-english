@@ -4,5 +4,5 @@ export const assetURL = path => new URL(path.replace(/^\/+/, ''), appBase).href;
 export const routeURL = route => `${appBase.pathname}#${route.startsWith('/')?route:`/${route}`}`;
 export function currentRoute(locationLike=location){
   const hash=locationLike.hash.slice(1);
-  return ['/','/lesson/deep-sea','/lesson/ancient-ocean','/lesson/greenland-shark','/lesson/t-rex','/lesson/carnotaurus','/review','/review/deep-sea','/review/ancient-ocean','/review/greenland-shark','/review/t-rex','/review/carnotaurus'].includes(hash)?hash:'/';
+  return ['/','/lesson/deep-sea','/lesson/ancient-ocean','/lesson/greenland-shark','/lesson/t-rex','/lesson/carnotaurus','/lesson/shangganling','/lesson/changjinhu','/review','/review/deep-sea','/review/ancient-ocean','/review/greenland-shark','/review/t-rex','/review/carnotaurus','/review/shangganling','/review/changjinhu'].includes(hash)?hash:'/';
 }

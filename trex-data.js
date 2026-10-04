@@ -1,4 +1,4 @@
-import {assetURL} from './paths.4008ab36cc01.js';
+import {assetURL} from './paths.f1dd28e5aab4.js';
 export const lesson = {
   "id": "t-rex",
   "title": "霸王龙：一起走进恐龙世界",
