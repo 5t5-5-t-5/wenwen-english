@@ -1,4 +1,3 @@
-import {toggleVideoFullscreen} from './fullscreen.js';
 import {appBase,assetURL,routeURL,currentRoute} from './paths.js';
 import {courses,courseById} from './courses.js';
 let {lesson,sentences,vocabulary}=courses[0];
@@ -17,7 +16,7 @@ const paths={
  speaker:'m11 4-6 4H2v8h3l6 4V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14',
  user:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 16 0v2',
  check:'m5 12 4 4L19 6',loop:'m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3',
- info:'M12 11v6m0-10v.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z', fullscreen:'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5'
+ info:'M12 11v6m0-10v.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z'
 };
 const icon=(name)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]||paths.info}"/></svg>`;
 const app=document.querySelector('#app'), modal=document.querySelector('#modal'), modalContent=document.querySelector('#modal-content');
@@ -66,7 +65,7 @@ function sentenceHTML(s){
 function renderLesson(){
   current=sentenceAt(sentences,pendingSeek??state.progress);
   app.innerHTML=`<main class="lesson-shell"><header class="lesson-header"><button class="icon-button" data-nav="/" aria-label="返回视频目录">${icon('back')}</button><a class="brand" href="${routeURL('/')}" data-nav="/" aria-label="Wenwen’s World">${brand()}</a><a class="icon-button download" href="${lesson.video}" download="问问看世界-${lesson.id}.mp4" aria-label="下载无底部字幕视频">${icon('download')}</a></header>
-  <div class="lesson-layout"><section class="video-column" aria-label="视频播放"><div class="video-box"><video id="video" src="${lesson.video}" poster="${lesson.poster}" controls playsinline preload="metadata" aria-label="${esc(lesson.title)}英语教学视频"><track kind="subtitles" src="${lesson.tracks.en}" srclang="en" label="English"><track kind="subtitles" src="${lesson.tracks.zh}" srclang="zh" label="中文"></video><button class="big-play" data-action="play" aria-label="播放视频">${icon('play')}</button><div id="media-error" class="media-error" hidden><strong>视频暂时没有加载成功</strong><span>检查网络连接后可以继续学习。</span><button class="primary" data-action="retry-video">重新加载视频</button></div><span class="video-corner">${esc(lesson.englishTitle)}</span><button class="video-fullscreen" data-action="fullscreen" aria-label="全屏查看视频" aria-pressed="false">${icon('fullscreen')}<span>全屏</span></button></div><div class="video-details"><div class="eyebrow">${brand()} · ${lesson.level} 入门</div><h1>${esc(lesson.title)}</h1><p>${lesson.description}</p><div class="detail-chips"><span>${formatTime(Math.ceil(lesson.duration))}</span><span>${sentences.length} 句双语字幕</span><span>${lesson.tags}</span></div><div class="learning-tip">${icon('info')}<span>点击字幕可跳转到对应片段；点击英文单词查看释义。<br>按空格播放 / 暂停，按 ← → 切换上一句、下一句。</span></div></div></section>
+  <div class="lesson-layout"><section class="video-column" aria-label="视频播放"><div class="video-box"><video id="video" src="${lesson.video}" poster="${lesson.poster}" controls playsinline preload="metadata" aria-label="${esc(lesson.title)}英语教学视频"><track kind="subtitles" src="${lesson.tracks.en}" srclang="en" label="English"><track kind="subtitles" src="${lesson.tracks.zh}" srclang="zh" label="中文"></video><button class="big-play" data-action="play" aria-label="播放视频">${icon('play')}</button><div id="media-error" class="media-error" hidden><strong>视频暂时没有加载成功</strong><span>检查网络连接后可以继续学习。</span><button class="primary" data-action="retry-video">重新加载视频</button></div><span class="video-corner">${esc(lesson.englishTitle)}</span></div><div class="video-details"><div class="eyebrow">${brand()} · ${lesson.level} 入门</div><h1>${esc(lesson.title)}</h1><p>${lesson.description}</p><div class="detail-chips"><span>${formatTime(Math.ceil(lesson.duration))}</span><span>${sentences.length} 句双语字幕</span><span>${lesson.tags}</span></div><div class="learning-tip">${icon('info')}<span>点击字幕可跳转到对应片段；点击英文单词查看释义。<br>按空格播放 / 暂停，按 ← → 切换上一句、下一句。</span></div></div></section>
   <section class="reading-column" aria-label="逐句双语字幕"><div class="reading-heading"><strong>逐句精听</strong><span id="sentence-count">${current+1} / ${sentences.length}</span></div><div id="follow-banner" class="follow-banner" hidden><span>轮到你了，试着读出这一句</span><button data-action="record-dialog">${icon('mic')}录音</button><button data-action="next">下一句 ${icon('next')}</button></div><div id="sentences" class="sentences subtitle-${state.subtitle} ${state.phonetic?'phonetics':''}">${sentences.map(sentenceHTML).join('')}<div class="lesson-complete">每学会一句，就离自信表达更近一步。<button class="primary" data-action="complete">${state.completed?'✓ 已学完这节课':'标记为已学完'}</button></div></div></section></div>
   <footer class="toolbar"><div class="tool-row"><button class="tool" data-action="directory"><span class="tool-icon">${icon('grid')}</span><span>目录</span></button><button class="tool ${state.phonetic?'active':''}" id="phonetic-tool" data-action="phonetic" aria-pressed="${state.phonetic}"><span class="tool-icon">æ</span><span>音标</span></button><button class="tool" id="ab-tool" data-action="ab"><span class="tool-icon">A</span><span>AB点</span></button><button class="tool active" id="subtitle-tool" data-action="subtitle"><span class="tool-icon">${icon('language')}</span><span>${subtitleLabel()}</span></button><button class="tool active" id="speed-tool" data-action="speed"><span class="tool-icon">${icon('gauge')}</span><span>${state.speed}x</span></button><button class="tool" id="follow-tool" data-action="follow" aria-pressed="false"><span class="tool-icon">${icon('mic')}</span><span>跟读</span></button></div>
   <div class="seek-wrap"><div class="seek-track"><input id="seek" class="seek" type="range" min="0" max="${lesson.duration}" step="0.05" value="0" aria-label="视频播放进度"><span id="marker-a" class="ab-marker" hidden>A</span><span id="marker-b" class="ab-marker" hidden>B</span></div><span class="progress-label" id="progress-label">00:00 / ${formatTime(Math.ceil(lesson.duration))}</span></div>
@@ -74,8 +73,6 @@ function renderLesson(){
   video=document.querySelector('#video');video.playbackRate=state.speed;
   videoEvents=new AbortController();
   const on=(type,handler)=>video.addEventListener(type,handler,{signal:videoEvents.signal});
-  document.addEventListener('fullscreenchange',updateFullscreenButton,{signal:videoEvents.signal});
-  on('webkitbeginfullscreen',updateFullscreenButton);on('webkitendfullscreen',updateFullscreenButton);
   const resume=pendingSeek??state.progress;pendingSeek=null;video.dataset.resume=String(resume);
   on('loadedmetadata',()=>{const resume=Number(video.dataset.resume||0);delete video.dataset.resume;if(resume>0&&resume<video.duration-.5)video.currentTime=resume;document.querySelector('#seek').max=video.duration;updateTime();scrollActive();});
   on('play',()=>{state.watched=true;awaiting=false;setFollowBanner(false);updatePlay();save();});
@@ -92,19 +89,6 @@ const subtitleLabel=()=>({dual:'双语',en:'英文',zh:'中文'}[state.subtitle]
 function setToolLabel(id,label){const el=document.querySelector(`#${id} > span:last-child`);if(el)el.textContent=label;}
 function updatePlay(){if(!video)return;document.querySelector('#play-button').innerHTML=icon(video.paused?'play':'pause');document.querySelector('#play-button').setAttribute('aria-label',video.paused?'播放':'暂停');document.querySelector('.big-play').hidden=!video.paused;}
 async function play(){if(!video)return;try{await video.play();}catch(e){if(e.name!=='AbortError')toast('无法开始播放，请点击视频上的播放按钮重试');}}
-function updateFullscreenButton(){
-  const box=document.querySelector('.video-box'),button=box?.querySelector('.video-fullscreen');
-  if(!button)return;
-  const active=Boolean(document.fullscreenElement||video?.webkitDisplayingFullscreen||box.classList.contains('is-expanded'));
-  button.setAttribute('aria-label',active?'退出全屏':'全屏查看视频');
-  button.setAttribute('aria-pressed',String(active));
-  button.innerHTML=icon(active?'close':'fullscreen')+`<span>${active?'退出全屏':'全屏'}</span>`;
-}
-async function fullscreen(){
-  if(!video)return;
-  try{await toggleVideoFullscreen(video,document.querySelector('.video-box'));updateFullscreenButton();}
-  catch{toast('请使用视频自带的全屏按钮重试');}
-}
 function persist(){if(!video)return;state.progress=video.ended?0:video.currentTime;save();}
 function updateTime(){
   if(!video)return;
@@ -220,7 +204,6 @@ document.addEventListener('click',event=>{
     case 'reset-filters':catalogFilter='视频总页';levelFilter='全难度';category='地道英语';renderCatalog();break;
     case 'retry-video':video.dataset.resume=String(video.currentTime||state.progress||0);document.querySelector('#media-error').hidden=true;video.load();break;
     case 'play':if(video.paused){if(awaiting)seekSentence(current);else play();}else video.pause();break;
-    case 'fullscreen':fullscreen();break;
     case 'previous':seekSentence(current-1);break;
     case 'next':seekSentence(current+1);break;
     case 'phonetic':state.phonetic=!state.phonetic;save();document.querySelector('#sentences').innerHTML=sentences.map(sentenceHTML).join('')+`<div class="lesson-complete"><button class="primary" data-action="complete">${state.completed?'✓ 已学完这节课':'标记为已学完'}</button></div>`;document.querySelector('#sentences').classList.toggle('phonetics',state.phonetic);el.classList.toggle('active',state.phonetic);el.setAttribute('aria-pressed',String(state.phonetic));scrollActive();break;
@@ -247,7 +230,7 @@ document.addEventListener('click',event=>{
 modal.addEventListener('click',event=>{if(event.target===modal){const rect=modal.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeModal();}});
 modal.addEventListener('close',()=>stopRecording(true));
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closePopup();document.querySelector('.video-box.is-expanded')?.classList.remove('is-expanded');updateFullscreenButton();}
+  if(e.key==='Escape')closePopup();
   if(!video||modal.open||e.target.matches('input,textarea,select')||e.ctrlKey||e.metaKey||e.altKey)return;
   if(e.target.closest('[data-sentence]')&&e.key==='Enter'&&e.target.matches('[data-sentence]')){e.preventDefault();seekSentence(Number(e.target.dataset.sentence));return;}
   if(e.target.matches('button,a')&&(e.code==='Space'||e.key==='Enter'))return;
