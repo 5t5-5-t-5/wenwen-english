@@ -1,9 +1,9 @@
-const APP_RELEASE='f1dd28e5aab4';
+const APP_RELEASE='57a12fc2bb53';
 let availableRelease=null;
-import {appBase,assetURL,routeURL,currentRoute} from './paths.f1dd28e5aab4.js';
-import {courses,courseById} from './courses.f1dd28e5aab4.js';
+import {appBase,assetURL,routeURL,currentRoute} from './paths.57a12fc2bb53.js';
+import {courses,courseById} from './courses.57a12fc2bb53.js';
 let {lesson,sentences,vocabulary}=courses[0];
-import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState,storageKey} from './core.f1dd28e5aab4.js';
+import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState,storageKey} from './core.57a12fc2bb53.js';
 
 const paths={
  back:'M19 12H5m7-7-7 7 7 7', next:'M5 12h14m-7-7 7 7-7 7', play:'m8 5 11 7-11 7V5Z', pause:'M8 5v14M16 5v14',
@@ -43,8 +43,8 @@ try{
   if(saved&&Number.isFinite(saved.y)&&saved.y>=0){
     catalogScrollY=saved.y;
     if(['视频总页','收藏视频','已看过','已学完'].includes(saved.filter))catalogFilter=saved.filter;
-    if(['全难度','中文','A1','A2','B1','B2','C1','C2'].includes(saved.level))levelFilter=saved.level;
-    if(['全部主题','地道英语','中国历史','越听越清晰'].includes(saved.category))category=saved.category==='地道英语'&&!saved.categoryVersion?'全部主题':saved.category;
+    if(['全难度','A1','A2','B1','B2','C1','C2'].includes(saved.level))levelFilter=saved.level;
+    if(['全部主题','地道英语','越听越清晰'].includes(saved.category))category=saved.category==='地道英语'&&!saved.categoryVersion?'全部主题':saved.category;
   }
 }catch{}
 if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -75,9 +75,9 @@ function render(){
 function renderCatalog(){
   const shown=courses.filter(c=>visibleLesson(catalogFilter,levelFilter,category,states[c.lesson.id],c.lesson.level,c.lesson.category));
   app.innerHTML=header()+`<main class="catalog"><nav class="tabs" aria-label="课程状态">${['视频总页','收藏视频','已看过','已学完'].map(t=>`<button class="pill ${catalogFilter===t?'selected':''}" data-filter="${t}" aria-pressed="${catalogFilter===t}">${t}</button>`).join('')}</nav>
-  <nav class="tabs levels" aria-label="课程难度">${['全难度','中文','A1','A2','B1','B2','C1','C2'].map(t=>`<button class="pill ${levelFilter===t?'selected':''}" data-level="${t}" aria-pressed="${levelFilter===t}">${t}</button>`).join('')}</nav>
+  <nav class="tabs levels" aria-label="课程难度">${['全难度','A1','A2','B1','B2','C1','C2'].map(t=>`<button class="pill ${levelFilter===t?'selected':''}" data-level="${t}" aria-pressed="${levelFilter===t}">${t}</button>`).join('')}</nav>
   <button class="review-link" data-nav="/review/${lesson.id}">${icon('star')} 进入复习中心（生词本与金句）</button>
-  <nav class="categories" aria-label="课程分类">${['全部主题','地道英语','中国历史','越听越清晰'].map(t=>`<button class="category ${category===t?'selected':''}" data-category="${t}">${t}</button>`).join('')}<button class="category" data-action="install">添加到主屏幕</button></nav>
+  <nav class="categories" aria-label="课程分类">${['全部主题','地道英语','越听越清晰'].map(t=>`<button class="category ${category===t?'selected':''}" data-category="${t}">${t}</button>`).join('')}<button class="category" data-action="install">添加到主屏幕</button></nav>
   <section class="lesson-grid" aria-label="视频课程">${shown.length?shown.map(courseCard).join(''):empty(catalogFilter==='收藏视频'?'还没有收藏的视频':catalogFilter==='已看过'?'还没有学习记录':catalogFilter==='已学完'?'还没有学完的课程':'暂时没有这一分类的课程',catalogFilter==='收藏视频'?'点击视频封面上的星星，就能在这里找到它。':'可以返回视频总页，选择一节课开始学习。',true)}</section>
   <p class="catalog-note">${brand()} · 把每一句听懂，把每一次进步记住。<br>学习进度与收藏保存在当前浏览器。</p></main>`;
 }

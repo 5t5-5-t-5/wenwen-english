@@ -1,4 +1,4 @@
-import {assetURL} from './paths.f1dd28e5aab4.js';
+import {assetURL} from './paths.57a12fc2bb53.js';
 export const lesson = {
   "id": "deep-sea",
   "title": "深海怪兽：和鲸鱼一起探索海底",

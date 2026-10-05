@@ -1,4 +1,4 @@
-import {assetURL} from './paths.f1dd28e5aab4.js';
+import {assetURL} from './paths.57a12fc2bb53.js';
 export const lesson = {
   "id": "ancient-ocean",
   "title": "远古海洋：和邓氏鱼一起探险",
