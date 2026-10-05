@@ -1,8 +1,8 @@
-// Cache the learning interface, not the large video or the user's recordings.
+// Cache the learning interface, not large videos, audio or PDFs or the user's recordings.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const RELEASE='57a12fc2bb53';
+const RELEASE='f66b8fbe0e68';
 const CACHE=PREFIX+RELEASE;
-const SHELL=['./index.html','./assets/wenwen-world-logo-v1.png','./apple-touch-icon.png','./assets/wenwen-world-icon-152-v1.png','./assets/wenwen-world-icon-167-v1.png','./assets/wenwen-world-icon-180-v1.png','./assets/wenwen-world-icon-192-v1.png','./assets/wenwen-world-icon-512-v1.png','./assets/wenwen-world-maskable-512-v1.png','./assets/wenwen-world-favicon-32-v1.png','./assets/wenwen-world-favicon-64-v1.png','./style.57a12fc2bb53.css','./app.57a12fc2bb53.js','./core.57a12fc2bb53.js','./paths.57a12fc2bb53.js','./data.57a12fc2bb53.js','./ancient-data.57a12fc2bb53.js','./greenland-data.57a12fc2bb53.js','./trex-data.57a12fc2bb53.js','./carnotaurus-data.57a12fc2bb53.js','./assets/cover-carnotaurus-v2.jpg','./assets/carnotaurus-en-v2.vtt','./assets/carnotaurus-zh-v2.vtt','./assets/cover-t-rex-v4.jpg','./assets/t-rex-en-v4.vtt','./assets/t-rex-zh-v4.vtt','./assets/cover-greenland-shark-v3.jpg','./assets/greenland-shark-en-v3.vtt','./assets/greenland-shark-zh-v3.vtt','./courses.57a12fc2bb53.js','./assets/cover-ancient-ocean-v6.jpg','./assets/ancient-ocean-en-v6.vtt','./assets/ancient-ocean-zh-v6.vtt','./favicon.svg','./manifest.webmanifest','./assets/cover-deep-sea-v9.jpg','./assets/en-v9.vtt','./assets/zh-v9.vtt','./assets/icon-180.png','./assets/icon-192.png','./assets/icon-512.png'];
+const SHELL=['./index.html','./assets/wenwen-world-logo-v1.png','./apple-touch-icon.png','./assets/wenwen-world-icon-152-v1.png','./assets/wenwen-world-icon-167-v1.png','./assets/wenwen-world-icon-180-v1.png','./assets/wenwen-world-icon-192-v1.png','./assets/wenwen-world-icon-512-v1.png','./assets/wenwen-world-maskable-512-v1.png','./assets/wenwen-world-favicon-32-v1.png','./assets/wenwen-world-favicon-64-v1.png','./style.f66b8fbe0e68.css','./app.f66b8fbe0e68.js','./core.f66b8fbe0e68.js','./paths.f66b8fbe0e68.js','./data.f66b8fbe0e68.js','./ancient-data.f66b8fbe0e68.js','./greenland-data.f66b8fbe0e68.js','./trex-data.f66b8fbe0e68.js','./carnotaurus-data.f66b8fbe0e68.js','./assets/cover-carnotaurus-v2.jpg','./assets/carnotaurus-en-v2.vtt','./assets/carnotaurus-zh-v2.vtt','./assets/cover-t-rex-v4.jpg','./assets/t-rex-en-v4.vtt','./assets/t-rex-zh-v4.vtt','./assets/cover-greenland-shark-v3.jpg','./assets/greenland-shark-en-v3.vtt','./assets/greenland-shark-zh-v3.vtt','./courses.f66b8fbe0e68.js','./assets/cover-ancient-ocean-v6.jpg','./assets/ancient-ocean-en-v6.vtt','./assets/ancient-ocean-zh-v6.vtt','./favicon.svg','./manifest.webmanifest','./assets/cover-deep-sea-v9.jpg','./assets/en-v9.vtt','./assets/zh-v9.vtt','./assets/icon-180.png','./assets/icon-192.png','./assets/icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
   await cache.addAll(SHELL.map(path=>new Request(new URL(path,self.registration.scope).href,{cache:'reload'})));
@@ -17,7 +17,7 @@ self.addEventListener('message',event=>{
 });
 self.addEventListener('fetch',event=>{
   const request=event.request,url=new URL(request.url);
-  if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||request.headers.has('range')||url.pathname.endsWith('.mp4'))return;
+  if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||request.headers.has('range')||/\.(mp4|mp3|pdf)$/i.test(url.pathname))return;
   const allowed=SHELL.some(path=>new URL(path,self.registration.scope).pathname===url.pathname);
   if(!allowed&&request.mode!=='navigate')return;
   event.respondWith((async()=>{
