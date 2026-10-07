@@ -1,0 +1,91 @@
+import {books, wordbook} from './books-data.b4e06009d312.js';
+import {assetURL, routeURL} from './paths.b4e06009d312.js';
+import {readerRoute, wordAt, swipeDirection} from './books-core.b4e06009d312.js';
+
+const escape = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const speaker = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 4-6 4H2v8h3l6 4V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg>';
+const arrow = right => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${right?'m9 5 7 7-7 7':'m15 5-7 7 7 7'}"/></svg>`;
+const key = 'wenwen:readers:progress:v1';
+function progress() {try {return JSON.parse(localStorage.getItem(key)||'{}')||{};} catch {return {};}}
+function remember(id, index) {try {localStorage.setItem(key,JSON.stringify({...progress(),[id]:index}));} catch {}}
+function savedIndex(book) {const index = progress()[book.id];return Number.isInteger(index)&&index>=0&&index<book.pages.length?index:0;}
+
+export function bookshelfLink() {
+  return `<a class="books-home-link" href="${routeURL('/books')}" data-nav="/books"><span class="books-link-icon" aria-hidden="true">▤</span><span><strong>Read picture books</strong><small>6 little stories · Tap, listen & read</small></span><span aria-hidden="true">→</span></a>`;
+}
+
+export function mountBooks({app, route, navigate, header}) {
+  const selected = readerRoute(route,books);
+  const events = new AbortController();
+  let audio = null, frame = 0, generation = 0, active = -1, touch = null;
+  let playing = false, destroyed = false;
+  const listen = (target, name, fn, opts={}) => target.addEventListener(name,fn,{...opts,signal:events.signal});
+  const cleanHighlight = () => {app.querySelectorAll('.read-word.is-reading').forEach(el => el.classList.remove('is-reading'));active=-1;};
+  const stop = () => {
+    generation++;playing=false;cancelAnimationFrame(frame);audio?.pause();cleanHighlight();
+    const button=app.querySelector('.read-aloud');
+    if(button){button.classList.remove('is-playing');button.setAttribute('aria-busy','false');}
+  };
+  if (!selected) {
+    document.body.classList.add('book-library');
+    app.innerHTML = header()+`<main class="bookshelf"><a class="books-back" href="${routeURL('/')}" data-nav="/">${arrow(false)} Back to videos</a>
+      <header class="books-intro"><span class="books-eyebrow">THE READING CORNER</span><h1>Little books.<br>Big discoveries.</h1><p>Pick a story. Turn a page. Tap to hear it.</p><span class="books-series">DEEP-SEA STORIES · 6 BOOKS</span></header>
+      <section class="book-grid" aria-label="Six picture books">${books.map(book=>{
+        const page=savedIndex(book);return `<article class="book-card"><a class="book-open" href="${routeURL(`/books/${book.id}/${page+1}`)}" data-nav="/books/${book.id}/${page+1}" aria-label="Read ${escape(book.title)}"><div class="book-cover"><img src="${assetURL(book.cover)}" width="720" height="960" alt="${escape(book.title)} picture book" loading="lazy"></div><span class="book-meta">LEVEL ${book.level} <span>${book.pages.length} pages</span></span><h2>${escape(book.title)}</h2><span class="book-open-label">${page?'Continue reading':'Open book'} ${arrow(true)}</span></a><a class="book-print" href="${assetURL(book.pdf)}" target="_blank" rel="noopener">Print PDF ↗</a></article>`;
+      }).join('')}</section><aside class="books-extras"><div><h2>Paper, too.</h2><p>Print a book and read away from the screen.<br>Words have their own little book.</p></div><a href="${assetURL(wordbook)}" target="_blank" rel="noopener">Open word book ↗</a></aside><p class="books-credit">Stories prepared by a parent. AI-assisted pictures and narration, using Wenzhi’s voice.</p></main>`;
+  } else {
+    document.body.classList.add('book-reading');
+    const {book,index}=selected,page=book.pages[index];remember(book.id,index);
+    app.innerHTML=`<main class="reader" style="--book-accent:${book.color}"><header class="reader-header"><a class="books-back" href="${routeURL('/books')}" data-nav="/books">${arrow(false)} Bookshelf</a><a class="brand" href="${routeURL('/')}" data-nav="/">Wenwen’s World</a><span class="reader-level">LEVEL ${book.level}</span></header>
+      <div class="reader-title"><h1>${escape(book.title)}</h1><span>Read & listen</span></div>
+      <article class="reading-page" aria-label="Page ${index+1} of ${book.pages.length}"><span class="paper-page-number">${String(index+1).padStart(2,'0')}</span><div class="reading-art"><img src="${assetURL(page.image)}" alt="${escape(page.text)}" draggable="false"></div>
+      <div class="reading-sentence"><p class="read-words" lang="en" aria-label="${escape(page.text)}">${page.words.map((w,i)=>`<span class="read-word" data-read-word="${i}" aria-hidden="true">${escape(w.text)}</span>`).join(' ')}</p><button type="button" class="read-aloud" aria-label="Read aloud: ${escape(page.text)}" aria-busy="false">${speaker}</button></div>
+      <p class="reader-hint" role="status" aria-live="polite">Tap the speaker. Tap again to hear it again.</p><div class="paper-bottom" aria-hidden="true">WENWEN’S WORLD <span>READ & SAY</span></div></article>
+      <nav class="reader-navigation" aria-label="Turn pages"><button type="button" data-turn="-1" ${index===0?'disabled':''} aria-label="Previous page">${arrow(false)} <span>Back</span></button><span class="reader-count" aria-live="polite">${index+1} <span>/ ${book.pages.length}</span></span>${index===book.pages.length-1?`<a class="reader-done" href="${routeURL('/books')}" data-nav="/books">Bookshelf ${arrow(true)}</a>`:`<button type="button" data-turn="1" aria-label="Next page"><span>Next</span> ${arrow(true)}</button>`}</nav>
+      <div class="reader-dots" aria-label="Go to page">${book.pages.map((_,i)=>`<button type="button" data-page="${i}" aria-label="Page ${i+1}" ${i===index?'aria-current="page"':''}><span></span></button>`).join('')}</div>
+      <div class="reader-resources"><a href="${assetURL(book.pdf)}" target="_blank" rel="noopener">Print this book ↗</a><a href="${assetURL(book.audio)}" download>Download audio ↓</a></div></main>`;
+    audio=new Audio(assetURL(page.audio));audio.preload='metadata';audio.setAttribute('playsinline','');audio.id='reader-audio';app.append(audio);
+    const hint=app.querySelector('.reader-hint'),button=app.querySelector('.read-aloud');
+    function tick(){
+      if(destroyed||!playing)return;
+      const next=wordAt(page.words,audio.currentTime);
+      if(next!==active){cleanHighlight();active=next;if(next>=0)app.querySelector(`[data-read-word="${next}"]`)?.classList.add('is-reading');}
+      frame=requestAnimationFrame(tick);
+    }
+    async function play(){
+      stop();const mine=generation;
+      button.setAttribute('aria-busy','true');hint.textContent='Loading audio…';
+      try {
+        audio.currentTime=0;
+        await audio.play();
+        if(destroyed||mine!==generation)return;
+        playing=true;button.classList.add('is-playing');button.setAttribute('aria-busy','false');hint.textContent='Listen and follow the words.';tick();
+      } catch(error) {
+        if(destroyed||mine!==generation)return;
+        stop();hint.textContent='Audio could not play. Tap the speaker to try again.';
+        if(audio.error)audio.load();
+      }
+    }
+    function turn(delta){const next=index+delta;if(next<0||next>=book.pages.length)return;navigate(`/books/${book.id}/${next+1}`);}
+    listen(button,'click',play);
+    listen(audio,'ended',()=>{stop();hint.textContent='Your turn! Tap the speaker to listen again.';});
+    listen(audio,'error',()=>{stop();hint.textContent='Audio could not load. Check your connection and tap again.';});
+    listen(audio,'waiting',()=>{hint.textContent='Loading audio…';});
+    listen(audio,'playing',()=>{hint.textContent='Listen and follow the words.';});
+    listen(app,'click',event=>{const el=event.target.closest('[data-turn],[data-page]');if(!el)return;if(el.dataset.turn)turn(Number(el.dataset.turn));else navigate(`/books/${book.id}/${el.dataset.page*1+1}`);});
+    listen(document,'keydown',event=>{
+      if(event.ctrlKey||event.metaKey||event.altKey||event.target.matches('input,textarea,select')||document.querySelector('dialog[open]'))return;
+      if(event.key==='ArrowLeft'){event.preventDefault();turn(-1);}
+      if(event.key==='ArrowRight'){event.preventDefault();turn(1);}
+      if(event.code==='Space'&&!event.target.closest('button,a')){event.preventDefault();play();}
+    });
+    const sheet=app.querySelector('.reading-page');
+    listen(sheet,'touchstart',event=>{if(event.touches.length!==1||event.target.closest('button,a')){touch=null;return;}const t=event.touches[0];touch={x:t.clientX,y:t.clientY,time:performance.now()};},{passive:true});
+    listen(sheet,'touchend',event=>{if(!touch)return;const t=event.changedTouches[0],direction=swipeDirection(t.clientX-touch.x,t.clientY-touch.y,performance.now()-touch.time);touch=null;if(direction)turn(direction);},{passive:true});
+    listen(sheet,'touchcancel',()=>touch=null,{passive:true});
+    listen(document,'visibilitychange',()=>{if(document.hidden){stop();hint.textContent='Tap the speaker to listen again.';}});
+    listen(window,'pagehide',stop);
+    const nextPage=book.pages[index+1];if(nextPage){const preload=new Image();preload.src=assetURL(nextPage.image);}
+  }
+  return ()=>{destroyed=true;stop();events.abort();if(audio){audio.removeAttribute('src');audio.load();audio.remove();audio=null;}};
+}
