@@ -1,9 +1,9 @@
 // Versioned code and small reading assets are reusable. Videos stay on demand.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const RELEASE='899a47c4c2b4';
+const RELEASE='30c9d3f8c43d';
 const CACHE=PREFIX+RELEASE,MEDIA=PREFIX+'reading-media-v1';
 // Course and reader data are included in the single application bundle.
-const SHELL=['./index.html','./app.899a47c4c2b4.js','./style.899a47c4c2b4.css','./books.899a47c4c2b4.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
+const SHELL=['./index.html','./app.30c9d3f8c43d.js','./style.30c9d3f8c43d.css','./books.30c9d3f8c43d.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
 const scopeURL=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
@@ -47,7 +47,8 @@ self.addEventListener('fetch',event=>{
   })();
   event.respondWith(responseJob);event.waitUntil?.(responseJob.then(()=>storing).catch(()=>{}));return;
  }
- const navigation=request.mode==='navigate',allowed=SHELL.some(path=>new URL(path,self.registration.scope).pathname===url.pathname);
+ const basePath=new URL(self.registration.scope).pathname;
+ const navigation=request.mode==='navigate'&&(url.pathname===basePath||url.pathname===basePath+'index.html'),allowed=SHELL.some(path=>new URL(path,self.registration.scope).pathname===url.pathname);
  if(!allowed&&!navigation)return;
  if(navigation){
   const key=scopeURL('./index.html');
