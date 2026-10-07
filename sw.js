@@ -1,37 +1,60 @@
-// Cache the learning interface, not large videos, audio or PDFs or the user's recordings.
+// Versioned code and small reading assets are reusable. Videos stay on demand.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const RELEASE='607087d02d5a';
-const CACHE=PREFIX+RELEASE;
-const SHELL=['./book-library.607087d02d5a.js','./anglerfish-books.607087d02d5a.js','./books.607087d02d5a.js','./books-core.607087d02d5a.js','./books-data.607087d02d5a.js','./books.607087d02d5a.css','./anglerfish-data.607087d02d5a.js','./assets/cover-anglerfish-v4.jpg','./assets/anglerfish-en-v4.vtt','./assets/anglerfish-zh-v4.vtt','./index.html','./assets/wenwen-world-logo-v1.png','./apple-touch-icon.png','./assets/wenwen-world-icon-152-v1.png','./assets/wenwen-world-icon-167-v1.png','./assets/wenwen-world-icon-180-v1.png','./assets/wenwen-world-icon-192-v1.png','./assets/wenwen-world-icon-512-v1.png','./assets/wenwen-world-maskable-512-v1.png','./assets/wenwen-world-favicon-32-v1.png','./assets/wenwen-world-favicon-64-v1.png','./style.607087d02d5a.css','./app.607087d02d5a.js','./core.607087d02d5a.js','./paths.607087d02d5a.js','./data.607087d02d5a.js','./ancient-data.607087d02d5a.js','./greenland-data.607087d02d5a.js','./trex-data.607087d02d5a.js','./carnotaurus-data.607087d02d5a.js','./assets/cover-carnotaurus-v2.jpg','./assets/carnotaurus-en-v2.vtt','./assets/carnotaurus-zh-v2.vtt','./assets/cover-t-rex-v4.jpg','./assets/t-rex-en-v4.vtt','./assets/t-rex-zh-v4.vtt','./assets/cover-greenland-shark-v3.jpg','./assets/greenland-shark-en-v3.vtt','./assets/greenland-shark-zh-v3.vtt','./courses.607087d02d5a.js','./assets/cover-ancient-ocean-v6.jpg','./assets/ancient-ocean-en-v6.vtt','./assets/ancient-ocean-zh-v6.vtt','./favicon.svg','./manifest.webmanifest','./assets/cover-deep-sea-v9.jpg','./assets/en-v9.vtt','./assets/zh-v9.vtt','./assets/icon-180.png','./assets/icon-192.png','./assets/icon-512.png'];
+const RELEASE='899a47c4c2b4';
+const CACHE=PREFIX+RELEASE,MEDIA=PREFIX+'reading-media-v1';
+// Course and reader data are included in the single application bundle.
+const SHELL=['./index.html','./app.899a47c4c2b4.js','./style.899a47c4c2b4.css','./books.899a47c4c2b4.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
+const scopeURL=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
-  const cache=await caches.open(CACHE);
-  await cache.addAll(SHELL.map(path=>new Request(new URL(path,self.registration.scope).href,{cache:'reload'})));
-  await self.skipWaiting();
+ const cache=await caches.open(CACHE);
+ await cache.addAll(SHELL.map(path=>new Request(scopeURL(path),{cache:'reload'})));
+ await self.skipWaiting();
 })()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
-  for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE)await caches.delete(name);
-  await self.clients.claim();
+ for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE&&name!==MEDIA)await caches.delete(name);
+ await self.clients.claim();
 })()));
-self.addEventListener('message',event=>{
-  if(event.data?.type==='GET_APP_RELEASE')event.source?.postMessage({type:'APP_RELEASE',release:RELEASE});
-});
+self.addEventListener('message',event=>{if(event.data?.type==='GET_APP_RELEASE')event.source?.postMessage({type:'APP_RELEASE',release:RELEASE});});
+async function ranged(response,range){
+ const bytes=await response.arrayBuffer(),size=bytes.byteLength,match=/^bytes=(\d*)-(\d*)$/.exec(range);
+ let start=0,end=size-1;
+ if(match&&(match[1]||match[2])){start=match[1]?Number(match[1]):Math.max(0,size-Number(match[2]));end=match[1]&&match[2]?Math.min(Number(match[2]),size-1):size-1;}else start=size;
+ if(start>=size||start>end)return new Response(null,{status:416,headers:{'Content-Range':`bytes */${size}`}});
+ const headers=new Headers(response.headers);headers.delete('Content-Encoding');headers.set('Content-Length',String(end-start+1));headers.set('Content-Range',`bytes ${start}-${end}/${size}`);headers.set('Accept-Ranges','bytes');return new Response(bytes.slice(start,end+1),{status:206,headers});
+}
+async function cacheMedia(cache,key,response){
+ const partial=response.headers.get('Content-Range');
+ if(response.status!==200&&!(response.status===206&&/^bytes 0-\d+\/\d+$/.test(partial||'')&&Number(partial.match(/-(\d+)/)[1])+1===Number(partial.split('/')[1])))return;
+ const declared=Number(response.headers.get('Content-Length'));if(declared>6*1024*1024)return;
+ const bytes=await response.arrayBuffer();if(bytes.byteLength>6*1024*1024)return;
+ const headers=new Headers(response.headers);headers.delete('Content-Range');headers.delete('Content-Encoding');headers.set('Content-Length',String(bytes.byteLength));headers.set('Accept-Ranges','bytes');
+ await cache.put(key,new Response(bytes,{status:200,headers}));
+ // Bounded persistent cache; never includes recordings or videos.
+ const keys=await cache.keys();for(const old of keys.slice(0,Math.max(0,keys.length-128)))await cache.delete(old);
+}
 self.addEventListener('fetch',event=>{
-  const request=event.request,url=new URL(request.url);
-  if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||request.headers.has('range')||/\.(mp4|mp3|pdf)$/i.test(url.pathname))return;
-  const allowed=SHELL.some(path=>new URL(path,self.registration.scope).pathname===url.pathname);
-  if(!allowed&&request.mode!=='navigate')return;
-  event.respondWith((async()=>{
-    const cache=await caches.open(CACHE);
-    try{
-      const response=await fetch(request,{cache:'no-cache'});
-      if(response.ok){
-        const key=request.mode==='navigate'?new URL('./index.html',self.registration.scope).href:request;
-        await cache.put(key,response.clone());
-      }
-      return response;
-    }catch{
-      const fallback=await cache.match(request.mode==='navigate'?new URL('./index.html',self.registration.scope).href:request);
-      return fallback||new Response('网络连接已断开，请联网后重试。',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});
-    }
-  })());
+ const request=event.request,url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||/\.mp4$/i.test(url.pathname))return;
+ const media=/\/assets\/[^/]+-fast1\.(webp|mp3|pdf)$/.test(url.pathname);
+ // Legacy PDF/audio navigation must never overwrite the application entry.
+ if(!media&&/\.(mp3|pdf)$/i.test(url.pathname))return;
+ if(media){
+  let storing=Promise.resolve();
+  const responseJob=(async()=>{
+   const cache=await caches.open(MEDIA),key=url.origin+url.pathname,cached=await cache.match(key),range=request.headers.get('range');
+   if(cached)return range?ranged(cached,range):cached;
+   const response=await fetch(request);if(response.ok)storing=cacheMedia(cache,key,response.clone()).catch(()=>{});return response;
+  })();
+  event.respondWith(responseJob);event.waitUntil?.(responseJob.then(()=>storing).catch(()=>{}));return;
+ }
+ const navigation=request.mode==='navigate',allowed=SHELL.some(path=>new URL(path,self.registration.scope).pathname===url.pathname);
+ if(!allowed&&!navigation)return;
+ if(navigation){
+  const key=scopeURL('./index.html');
+  const refresh=(async()=>{const response=await fetch(request,{cache:'no-cache'});if(response.ok){const cache=await caches.open(CACHE);try{await cache.put(key,response.clone());}catch{}}return response;})().catch(()=>null);
+  event.waitUntil?.(refresh.then(()=>{}));
+  event.respondWith((async()=>{const cache=await caches.open(CACHE),cached=await cache.match(key);if(cached)return cached;return (await refresh)||new Response('Please reconnect to open your stories.',{status:503});})());
+ }else{
+  event.respondWith((async()=>{const cache=await caches.open(CACHE),cached=await cache.match(request);if(cached)return cached;const response=await fetch(request);if(response.ok)try{await cache.put(request,response.clone());}catch{}return response;})());
+ }
 });
