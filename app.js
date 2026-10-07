@@ -1,9 +1,9 @@
-const APP_RELEASE='f66b8fbe0e68';
+const APP_RELEASE='1eea233df495';
 let availableRelease=null;
-import {appBase,assetURL,routeURL,currentRoute} from './paths.f66b8fbe0e68.js';
-import {courses,courseById} from './courses.f66b8fbe0e68.js';
+import {appBase,assetURL,routeURL,currentRoute} from './paths.1eea233df495.js';
+import {courses,courseById} from './courses.1eea233df495.js';
 let {lesson,sentences,vocabulary}=courses[0];
-import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState,storageKey} from './core.f66b8fbe0e68.js';
+import {formatTime,sentenceAt,visibleLesson,normalizedWord,readState,storageKey} from './core.1eea233df495.js';
 
 const paths={
  back:'M19 12H5m7-7-7 7 7 7', next:'M5 12h14m-7-7 7 7-7 7', play:'m8 5 11 7-11 7V5Z', pause:'M8 5v14M16 5v14',

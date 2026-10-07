@@ -1,4 +1,4 @@
-import {lesson,sentences} from './data.f66b8fbe0e68.js';
+import {lesson,sentences} from './data.1eea233df495.js';
 export const formatTime = t => `${Math.floor(Math.max(0,t||0)/60).toString().padStart(2,'0')}:${Math.floor(Math.max(0,t||0)%60).toString().padStart(2,'0')}`;
 export function sentenceAt(sentences,time){
   let index=0;

@@ -1,4 +1,4 @@
-import {assetURL} from './paths.f66b8fbe0e68.js';
+import {assetURL} from './paths.1eea233df495.js';
 export const lesson = {
   "id": "carnotaurus",
   "title": "食肉牛龙：认识长角的恐龙",

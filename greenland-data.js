@@ -1,4 +1,4 @@
-import {assetURL} from './paths.f66b8fbe0e68.js';
+import {assetURL} from './paths.1eea233df495.js';
 export const lesson = {
   "id": "greenland-shark",
   "title": "格陵兰鲨：探索冰冷的北方海洋",
