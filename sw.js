@@ -1,13 +1,13 @@
 // Versioned code and small reading assets are reusable. Videos stay on demand.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const RELEASE='05d14d9775ff';
+const RELEASE='580ddcf6809b';
 const CACHE=PREFIX+RELEASE,MEDIA=PREFIX+'reading-media-v1';
 // Course and reader data are included in the single application bundle.
-const SHELL=['./index.html','./app.05d14d9775ff.js','./style.05d14d9775ff.css','./books.05d14d9775ff.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
+const SHELL=['./index.html','./app.580ddcf6809b.js','./style.580ddcf6809b.css','./books.580ddcf6809b.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
 const scopeURL=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
- await cache.addAll(SHELL.map(path=>new Request(scopeURL(path),{cache:'reload'})));
+ await cache.addAll(SHELL.map(path=>new Request(scopeURL(path),{cache:path==='./index.html'?'reload':'force-cache'})));
  await self.skipWaiting();
 })()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
@@ -30,12 +30,12 @@ async function cacheMedia(cache,key,response){
  const headers=new Headers(response.headers);headers.delete('Content-Range');headers.delete('Content-Encoding');headers.set('Content-Length',String(bytes.byteLength));headers.set('Accept-Ranges','bytes');
  await cache.put(key,new Response(bytes,{status:200,headers}));
  // Bounded persistent cache; never includes recordings or videos.
- const keys=await cache.keys();for(const old of keys.slice(0,Math.max(0,keys.length-128)))await cache.delete(old);
+ const keys=await cache.keys();for(const old of keys.slice(0,Math.max(0,keys.length-320)))await cache.delete(old);
 }
 self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope)||/\.mp4$/i.test(url.pathname))return;
- const media=/\/assets\/[^/]+-fast1\.(webp|mp3|pdf)$/.test(url.pathname);
+ const media=/\/assets\/[^/]+\.(webp|jpg|png)$/.test(url.pathname)||/\/assets\/read-[^/]+\.(mp3|pdf)$/.test(url.pathname)||/\/assets\/[^/]+-fast1\.(mp3|pdf)$/.test(url.pathname);
  // Legacy PDF/audio navigation must never overwrite the application entry.
  if(!media&&/\.(mp3|pdf)$/i.test(url.pathname))return;
  if(media){
