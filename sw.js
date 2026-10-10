@@ -1,9 +1,9 @@
 // Versioned code and small reading assets are reusable. Videos stay on demand.
 const PREFIX=`wenwen-mobile:${self.registration.scope}:`;
-const RELEASE='10959aad8005';
+const RELEASE='c77162e6acd9';
 const CACHE=PREFIX+RELEASE,MEDIA=PREFIX+'reading-media-v1';
 // Course and reader data are included in the single application bundle.
-const SHELL=['./index.html','./app.10959aad8005.js','./style.10959aad8005.css','./books.10959aad8005.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
+const SHELL=['./index.html','./app.c77162e6acd9.js','./style.c77162e6acd9.css','./books.c77162e6acd9.css','./manifest.webmanifest','./assets/wenwen-world-icon-180-v1.png'];
 const scopeURL=path=>new URL(path,self.registration.scope).href;
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
